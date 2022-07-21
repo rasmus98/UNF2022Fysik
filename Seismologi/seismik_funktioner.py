@@ -8,20 +8,20 @@ from inspect import signature
 
 def læs_hammer_data(filnavne):
     """
-    Læser hammerseismik data fra en liste af filer
+    Læser hammerseismik data fra en array af filer
     
     Parametre:
     ----------
-    filnavne : liste 
-        Liste af filnavnene fra hammerseismik forsøget
+    filnavne : array 
+        array af filnavnene fra hammerseismik forsøget
         
     Returnerer:
     ----------
     tider, amplituder, afstande
     hvor
-    tider: Liste
-        Liste over tidspunkterne data er taget efter hammerslag
-    amplituder: 3-d liste
+    tider: array
+        array over tidspunkterne data er taget efter hammerslag
+    amplituder: 3-d array
         1. akse er tilsvarer hvert forsøg, hver fra en fil
         2. akse tilsvarer de 16 geofoner
         3. akse er hver af tiderne
@@ -33,10 +33,10 @@ def læs_hammer_data(filnavne):
     amplituder[1,3,10] # "amplitude i 1. forsøg af 3. geofon til 10. tidspunkt"
     """
     if type(filnavne) is not list:
-        print("Argumentet til \"read_campus_data\" skal være en liste af filnavne. Listen kan godt indeholde 1 fil, fx read_campus_data([\"100.dat\"])")
+        print("Argumentet til \"read_campus_data\" skal være en array af filnavne. arrayn kan godt indeholde 1 fil, fx read_campus_data([\"100.dat\"])")
         return
     if (invalid := np.where([not os.path.exists(x) for x in filnavne])[0]).any():
-        print(f"Argumentet til \"read_campus_data\" skal være en liste af filnavne, men det er {np.array(filnavne)[invalid]} ikke. Hvis fil(erne) er i en underfolder, skal det være en del af filnavnet. Den nuværende folder er {os.getcwd()}/")
+        print(f"Argumentet til \"read_campus_data\" skal være en array af filnavne, men det er {np.array(filnavne)[invalid]} ikke. Hvis fil(erne) er i en underfolder, skal det være en del af filnavnet. Den nuværende folder er {os.getcwd()}/")
         return
     amplitudes = np.array([[x.data for x in SEG2().read_file(filename)] for filename in filnavne])
     times = SEG2().read_file(filnavne[0])[0].times()
@@ -56,9 +56,9 @@ def læs_marine_data(filnavn):
     ----------
     tider, amplituder, afstande
     hvor
-    tider: Liste
-        Liste over tidspunkterne data er taget efter luftkanon
-    amplituder: 3-d liste
+    tider: Array
+        Array over tidspunkterne data er taget efter luftkanon
+    amplituder: 3-d Array
         1. akse er tilsvarer hvert forsøg, hver fra en fil
         2. akse tilsvarer de mange hydrofoner
         3. akse er hver af tiderne
@@ -74,22 +74,22 @@ def læs_marine_data(filnavn):
     afstande = 6.4*np.arange(48) + 20
     return times, amplitudes, afstande
 
-def plot_seismogram(tider, afstande, amplituder, skalaer = np.array([1]), funktioner=[]):  
+def plot_seismogram(tider, amplituder, afstande, skalaer = np.array([1]), funktioner=[]):  
     """
     Funktion til at visualisere seismometer data som en funktion af tid, efter den ønskede pre-processering
     
     Parametre:
     ----------
-    tider : liste 
-        Liste af tiderne data er blevet taget, i sekunder. 
-    afstande : liste 
-        Position af hver mikrofon, i meter. 
+    tider : array 
+        Array af tiderne data er blevet taget, i sekunder. 
     amplituder : 2d array
         En 2d-array med amplituder der skal plottes. 
         Hver række (1. dimension) repræsenterer en mikrofon, mens hver kolonne repræsenterer et tidspunkt
-    skalaer : float
+    afstande : array 
+        Position af hver mikrofon, i meter. 
+    skalaer : array
         Størrelse af svingninger i plottet for hver mikrofon.
-    funktioner : liste af funktioner
+    funktioner : array af funktioner
         funktioner der definerer linjer at tegne i plottet, defineret som tid(afstand).
     
     Eksempel:
@@ -97,7 +97,7 @@ def plot_seismogram(tider, afstande, amplituder, skalaer = np.array([1]), funkti
     def overflade(x): return x/10
     def overflade2(x): return x/20 + 0.1
     # Plot det første (altså [0]) forsøg, med skalaen justeret efter afstanden, sammen med 2 linjer med hældning hhv 1/10 og 1/20.
-    seismik_funktioner.plot_seismogram(times, afstande, amplitudes[0], 
+    seismik_funktioner.plot_seismogram(times, amplitudes[0], afstande, 
                                      skalaer=10*(np.abs(afstande)), 
                                      funktioner=[overflade,overflade2])
     """
@@ -140,8 +140,8 @@ def højpass_filter(tider, amplituder, cutoff):
     
     Parametre:
     ----------
-    tider : liste 
-        Liste af tiderne data er blevet taget, i sekunder. 
+    tider : array 
+        array af tiderne data er blevet taget, i sekunder. 
     amplituder : 2d array
         En 2d-array med amplituder der skal højpass filtreres
         Hver række (1. dimension) repræsenterer en mikrofon, mens hver kolonne repræsenterer et tidspunkt
